@@ -1,14 +1,15 @@
+using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
+[RequireComponent(typeof(TextMeshProUGUI))]
 public class LogToText : MonoBehaviour
 {
-    private Text _logText;
+    private TMP_Text _logText;
     private float _deltaTime;
 
     private void Start()
     {
-        _logText = GetComponent<Text>();
+        _logText = GetComponent<TMP_Text>();
         if (_logText == null) return;
 
         var os = SystemInfo.operatingSystem;

@@ -150,15 +150,14 @@ MonoBehaviour:
   rotationSpeed: 20
   rotationAmount: 20
   autoTiltAmount: 10
-  manualTiltAmount: 15
+  manualTiltAmount: 20
   springConstant: 800
   springConstantOnDrag: 600
   dampingFactor: 40
   dampingFactorOnDrag: 25
   maxSpringRotationAngle: 60
   scaleOnHover: 1.05
-  scaleOnPress: 1.15
-  scaleOnDrag: 1.25
+  scaleOnDrag: 1.15
   scaleDuration: 0.5
   scaleEase: 24
   shakeRotationAngle: 5

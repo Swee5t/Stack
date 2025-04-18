@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 
 public class CardGroup : MonoBehaviour
@@ -10,12 +11,11 @@ public class CardGroup : MonoBehaviour
     public float spacing = 50f;
 
     [HideInInspector] public List<CardBase> cards = new();
-    [HideInInspector] public CardBase selectedCard;
     [HideInInspector] public CardBase draggingCard;
-    [HideInInspector] public bool isDragging;
 
     private RectTransform _rectTransform;
     private VisualHandler _visualHandler;
+    private TMP_Text _countText;
 
     private void Start()
     {
@@ -23,6 +23,7 @@ public class CardGroup : MonoBehaviour
 
         _rectTransform = GetComponent<RectTransform>();
         _visualHandler = FindObjectOfType<VisualHandler>();
+        _countText = GetComponentInChildren<TMP_Text>();
 
         foreach (Transform slot in transform)
         {
@@ -36,9 +37,10 @@ public class CardGroup : MonoBehaviour
         StartCoroutine(StartAfterFirstFrame());
     }
 
-    private void LateUpdate()
+    private void Update()
     {
         UpdateCardPositions();
+        UpdateCountText();
     }
 
     private IEnumerator StartAfterFirstFrame()
@@ -59,25 +61,25 @@ public class CardGroup : MonoBehaviour
 
     public void Reorder()
     {
-        if (!allowReorder || isDragging || selectedCard == null) return;
+        if (!allowReorder || draggingCard == null) return;
 
-        var selectedIndex = selectedCard.ParentIndex();
-        var selectedX = selectedCard.transform.position.x;
-        var selectedSlot = selectedCard.transform.parent;
+        var draggingCardIndex = draggingCard.ParentIndex();
+        var draggingCardX = draggingCard.transform.position.x;
+        var draggingCardSlot = draggingCard.transform.parent;
 
-        foreach (var card in cards.Where(c => c != selectedCard))
+        foreach (var card in cards.Where(c => c != draggingCard))
         {
             var targetX = card.transform.position.x;
             var targetIndex = card.ParentIndex();
             var targetSlot = card.transform.parent;
 
-            var crossedRight = selectedX > targetX && selectedIndex < targetIndex;
-            var crossedLeft = selectedX < targetX && selectedIndex > targetIndex;
+            var crossedRight = draggingCardX > targetX && draggingCardIndex < targetIndex;
+            var crossedLeft = draggingCardX < targetX && draggingCardIndex > targetIndex;
 
             if (!crossedRight && !crossedLeft) continue;
 
-            selectedCard.transform.SetParent(targetSlot);
-            card.transform.SetParent(selectedSlot);
+            draggingCard.transform.SetParent(targetSlot);
+            card.transform.SetParent(draggingCardSlot);
 
             card.transform.localPosition = card.isSelected ? Vector3.up * card.selectionOffset : Vector3.zero;
 
@@ -116,5 +118,15 @@ public class CardGroup : MonoBehaviour
             var slot = slots[i];
             slot.localPosition = new Vector3(offsetX, 0f, 0f);
         }
+    }
+    
+    private void UpdateCountText()
+    {
+        if (ReferenceEquals(_countText, null)) return;
+
+        var selected = cards.Count(c => c.isSelected);
+        var total = cards.Count;
+
+        _countText.text = $"{selected}/{total}";
     }
 }

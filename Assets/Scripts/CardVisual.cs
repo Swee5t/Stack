@@ -23,7 +23,7 @@ public class CardVisual : MonoBehaviour
 
     [SerializeField] private float rotationAmount = 20f;
     [SerializeField] private float autoTiltAmount = 10f;
-    [SerializeField] private float manualTiltAmount = 15f;
+    [SerializeField] private float manualTiltAmount = 20f;
 
     [SerializeField] private float springConstant = 800f;
     [SerializeField] private float springConstantOnDrag = 600f;
@@ -32,8 +32,7 @@ public class CardVisual : MonoBehaviour
     [SerializeField] private float maxSpringRotationAngle = 60f;
 
     [SerializeField] private float scaleOnHover = 1.05f;
-    [SerializeField] private float scaleOnPress = 1.15f;
-    [SerializeField] private float scaleOnDrag = 1.25f;
+    [SerializeField] private float scaleOnDrag = 1.15f;
     [SerializeField] private float scaleDuration = 0.5f;
     [SerializeField] private Ease scaleEase = Ease.OutElastic;
 
@@ -162,13 +161,6 @@ public class CardVisual : MonoBehaviour
 
     private void CardOffset(float deltaTime)
     {
-        if (targetCard.isDragging)
-        {
-            tiltTransform.localPosition = Vector3.zero;
-            tiltTransform.localEulerAngles = Vector3.zero;
-            return;
-        }
-
         var time = Time.time + targetCard.ParentIndex() * 0.5f;
         var timeSine = Mathf.Sin(time);
         var timeCosine = Mathf.Cos(time);
@@ -176,7 +168,7 @@ public class CardVisual : MonoBehaviour
         var center = (targetCardGroup.cards.Count - 1) / 2f;
         var normalizedOffset = center == 0 ? 0 : (targetCard.ParentIndex() - center) / center;
 
-        var position = Vector3.up * timeSine;
+        var position = targetCard.isDragging ? Vector3.zero : Vector3.up * timeSine;
 
         tiltTransform.localPosition = Vector3.Lerp(tiltTransform.localPosition, position, positionSpeed * deltaTime);
 
@@ -200,12 +192,6 @@ public class CardVisual : MonoBehaviour
             yield return new WaitForSeconds(1f);
             ShakeRotation(shakeDuration, shakeRotationAngle, shakeVibrato);
         }
-    }
-
-    public void OnBeginDrag()
-    {
-        Scale(scaleOnDrag);
-        ShakeRotation(shakeDuration, shakeRotationAngle, shakeVibrato);
     }
 
     public void OnEndDrag()
@@ -235,7 +221,7 @@ public class CardVisual : MonoBehaviour
 
     public void OnPointerDown()
     {
-        Scale(scaleOnPress);
+        Scale(scaleOnDrag);
         ShakeRotation(shakeDuration, shakeRotationAngle, shakeVibrato);
     }
 
